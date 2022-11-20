@@ -10,7 +10,7 @@ PixWork::PixWork(QWidget* parent):
 {
     message = new QMessageBox(this);
 
-    photo = QImage("C:/Users/ilyai/Downloads/zamok.png");
+    photo = QImage("C:/Users/ilyai/Downloads/rentgen.png");
     pLabel1 = new QLabel(this);
     pLabel1->setPixmap(QPixmap::fromImage(photo));
     pLabel1->setFixedHeight(photo.height());
@@ -85,12 +85,16 @@ void PixWork::mousePressEvent(QMouseEvent* event)//Обработка нажат
                 QColor color = photo.pixelColor(x,y);
                 int pX = event->pos().x() - pLabel1->geometry().topLeft().x();
                 int pY = event->pos().y() - pLabel1->geometry().topLeft().y();
-                if(((x-pX)*(x-pX) + (y-pY)*(y-pY)) < (circle->getCircleRad()*circle->getCircleRad()))
+                if(sqrt((x-pX)*(x-pX) + (y-pY)*(y-pY)) <= (circle->getCircleRad()/2.0f))
                 {
                     colorBase.push_back(color);
                 }
             }
         }
+
+        maxSat = colorBase[0].hsvSaturation();
+        minSat = colorBase[0].hsvSaturation();
+
 
         for(int c=0; c < colorBase.size(); c++) // Поиск максимального значения интенсивности
         {

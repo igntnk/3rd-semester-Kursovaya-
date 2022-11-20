@@ -17,7 +17,7 @@ void CircleLabel::paintEvent(QPaintEvent* q)
 
 void CircleLabel::doPainting(QPainter* painter)
 {
-    painter->setPen(QPen(Qt::black, 1));
+    painter->setPen(QPen(Qt::black, 2));
     painter->setBrush(QBrush(Qt::NoBrush));
     painter->setRenderHint(QPainter::Antialiasing);
 
