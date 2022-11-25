@@ -17,6 +17,10 @@ void CircleLabel::paintEvent(QPaintEvent* q)
 
 void CircleLabel::doPainting(QPainter* painter)
 {
+    if(!image.isNull())
+    {
+    painter->drawImage(QPoint(0,0), image);
+    }
     painter->setPen(QPen(Qt::black, 2));
     painter->setBrush(QBrush(Qt::NoBrush));
     painter->setRenderHint(QPainter::Antialiasing);
@@ -27,6 +31,7 @@ void CircleLabel::doPainting(QPainter* painter)
 void CircleLabel::setCircleRad(int rad)
 {
     circleRad = rad;
+    image = QImage();
     this->update();
 }
 
@@ -38,4 +43,9 @@ int CircleLabel::getCircleRad()
 int CircleLabel::getMaxCircleArea()
 {
     return maxCircleArea;
+}
+
+void CircleLabel::setImage(QImage i)
+{
+    image = i;
 }

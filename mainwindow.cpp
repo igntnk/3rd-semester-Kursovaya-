@@ -5,12 +5,14 @@
 #include <cmath>
 #include <vector>
 
+bool compBigger(const QColor&, const QColor&);
+
 PixWork::PixWork(QWidget* parent):
     QWidget(parent)
 {
     message = new QMessageBox(this);
 
-    photo = QImage("C:/Users/ilyai/Downloads/rentgen.png");
+    photo = QImage("C:/Users/ilyai/Downloads/zamok.png");
     pLabel1 = new QLabel(this);
     pLabel1->setPixmap(QPixmap::fromImage(photo));
     pLabel1->setFixedHeight(photo.height());
@@ -26,7 +28,8 @@ PixWork::PixWork(QWidget* parent):
     tLabel = new QLabel(t1, this);
     circle = new CircleLabel(this);
     circleRadLabel = new QLabel("10", this);
-    circle->show();
+
+    takenPart = QImage(QSize(circle->getMaxCircleArea(), circle->getMaxCircleArea()), QImage::Format_ARGB32);
 
     maxSize = circle->getMaxCircleArea();
 
@@ -42,18 +45,17 @@ PixWork::PixWork(QWidget* parent):
     hbox = new QHBoxLayout(this);
     vbox = new QVBoxLayout(this);
 
-    vbox->setSpacing(16);
-    vbox->addStretch(1);
-    vbox->addWidget(tLabel,5,Qt::AlignHCenter);
+    vbox->addWidget(tLabel, 10, Qt::AlignCenter);
     vbox->addWidget(circle,5,Qt::AlignHCenter);
-    vbox->addWidget(slider, 5, Qt::AlignHCenter);
-    vbox->addWidget(circleRadLabel, 5, Qt::AlignHCenter);
+    vbox->addWidget(slider,5,Qt::AlignCenter);
+    vbox->addWidget(circleRadLabel,5,Qt::AlignCenter);
 
 
     hbox->setSpacing(16);
-    hbox->addStretch(1);
+    hbox->addStretch(10);
     hbox->addLayout(vbox);
-    hbox->addWidget(pLabel1,5, Qt::AlignHCenter);
+    hbox->addWidget(pLabel1,5,Qt::AlignCenter);
+
 
     setLayout(hbox);
 
@@ -85,6 +87,7 @@ void PixWork::mousePressEvent(QMouseEvent* event)//Обработка нажат
                 QColor color = photo.pixelColor(x,y);
                 int pX = event->pos().x() - pLabel1->geometry().topLeft().x();
                 int pY = event->pos().y() - pLabel1->geometry().topLeft().y();
+
                 if(sqrt((x-pX)*(x-pX) + (y-pY)*(y-pY)) <= (circle->getCircleRad()/2.0f))
                 {
                     colorBase.push_back(color);
@@ -92,28 +95,41 @@ void PixWork::mousePressEvent(QMouseEvent* event)//Обработка нажат
             }
         }
 
-        maxSat = colorBase[0].hsvSaturation();
-        minSat = colorBase[0].hsvSaturation();
+        if(colorBase.size() < (3*(circle->getCircleRad()*circle->getCircleRad())/4))
+        {
+            QMessageBox::critical(this, "Warning", "You can't take this area");
+            return;
+        }
 
+        takenPart.fill(QColor(255,255,255,0));
+        int counter = 0;
+        for(int y=0; y <= circle->getMaxCircleArea(); y++)
+        {
+            for(int x= 0; x<= circle->getMaxCircleArea();x++)
+            {
+                if(sqrt((x-circle->getMaxCircleArea()/2)*(x-circle->getMaxCircleArea()/2)+
+                        (y-circle->getMaxCircleArea()/2)*(y-circle->getMaxCircleArea()/2)) <= circle->getCircleRad()/2.0f)
+                {
+                    takenPart.setPixelColor(QPoint(x,y),colorBase[counter]);
+                    counter++;
+                }
+            }
+        }
+        circle->setImage(takenPart);
+
+        maxSat = colorBase[0].hslSaturation();
+        minSat = colorBase[0].hslSaturation();
 
         for(int c=0; c < colorBase.size(); c++) // Поиск максимального значения интенсивности
         {
-            if(maxSat < colorBase[c].hsvSaturation())
+            if(maxSat < colorBase[c].hslSaturation())
             {
-                maxSat = colorBase[c].hsvSaturation();
+                maxSat = colorBase[c].hslSaturation();
             }
-        }
-
-        for(int c=0; c < colorBase.size(); c++) // Поиск минимального значения интенсивности
-        {
-            if(minSat > colorBase[c].hsvSaturation())
+            else if(minSat > colorBase[c].hslSaturation())
             {
-                minSat = colorBase[c].hsvSaturation();
+                minSat = colorBase[c].hslSaturation();
             }
-        }
-
-        for(int c=0; c < colorBase.size(); c++) // Поиск срднего значения интенсивности
-        {
             midSat += colorBase[c].hsvSaturation();
             if(c == colorBase.size()-1)
             {
@@ -159,8 +175,5 @@ void PixWork::mouseMoveEvent(QMouseEvent* event)
         sniper->setGeometry(-sniper->getMaxCircleArea(),0,0,0);
     }
 }
-
-
-
 
 

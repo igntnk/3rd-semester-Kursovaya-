@@ -3,13 +3,12 @@
 #include "circlelabel.h"
 #include <QPixmap>
 #include <QWidget>
-#include <QDebug>
 #include <QSlider>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QMessageBox>
-#include <QResizeEvent>
+#include <QStackedLayout>
 
 class PixWork: public QWidget
 {
@@ -31,13 +30,16 @@ private:
     QLabel* pLabel1;
     QLabel* tLabel;
     QLabel* circleRadLabel;
+    QLabel* upperPhoto;
 
     QImage photo;
+    QImage takenPart;
 
     QSlider* slider;
 
     QHBoxLayout* hbox;
     QVBoxLayout* vbox;
+    QStackedLayout* sbox;
 
     bool isGoal(QMouseEvent* event, QRect refer);
 
